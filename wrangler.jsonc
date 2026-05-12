@@ -12,10 +12,7 @@
     "enabled": true,
   },
 
-  "vars": {
-    "TELEGRAM_CHANNEL_ID": "",
-  },
   "secrets": {
-    "required": ["TELEGRAM_BOT_TOKEN", "WEBHOOK_SECRET"],
+    "required": ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHANNEL_ID", "WEBHOOK_SECRET"],
   },
 }
