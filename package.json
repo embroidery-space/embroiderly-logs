@@ -3,23 +3,25 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "test": "vitest",
     "check-types": "wrangler types && tsc --noEmit",
     "fmt": "oxfmt --check",
     "fmt:fix": "oxfmt --write",
     "lint": "oxlint --format stylish --deny-warnings",
-    "lint:fix": "oxlint --fix --format stylish --deny-warnings"
+    "lint:fix": "oxlint --fix --format stylish --deny-warnings",
+    "test": "vitest run"
   },
   "dependencies": {
     "grammy": "1.42.0"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "0.16.3",
     "@tsconfig/node24": "24.0.4",
     "@tsconfig/strictest": "2.0.8",
     "@types/node": "24.12.3",
     "oxfmt": "0.48.0",
     "oxlint": "1.63.0",
     "typescript": "6.0.3",
+    "vitest": "4.1.6",
     "wrangler": "4.90.0"
   }
 }

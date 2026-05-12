@@ -7,13 +7,13 @@ interface Payload {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, _ctx) {
     const url = new URL(request.url);
     if (url.pathname !== "/") return new Response("Not found", { status: 404 });
     if (request.method !== "POST") return new Response("Method not allowed", { status: 405 });
 
     const secret = request.headers.get("x-webhook-secret") ?? "";
-    if (verifySecret(secret, env.WEBHOOK_SECRET)) {
+    if (!verifySecret(secret, env.WEBHOOK_SECRET)) {
       return new Response("Unauthorized", { status: 401 });
     }
 
@@ -44,9 +44,16 @@ export default {
 
 function verifySecret(provided: string, expected: string) {
   const encoder = new TextEncoder();
+
   const a = encoder.encode(provided);
   const b = encoder.encode(expected);
-  return crypto.subtle.timingSafeEqual(a, b);
+
+  // Do not return early when lengths differ — that leaks the secret's length through timing.
+  // Instead, always perform a constant-time comparison:
+  // - when the lengths match compare directly;
+  // - otherwise compare the user input against itself (always true) and negate.
+  const lengthsMatch = a.byteLength === b.byteLength;
+  return lengthsMatch ? crypto.subtle.timingSafeEqual(a, b) : !crypto.subtle.timingSafeEqual(a, a);
 }
 
 function parsePayload(body: unknown): Payload | null {
