@@ -1,0 +1,6 @@
+saveExact: true
+
+allowBuilds:
+  "esbuild": false
+  "sharp": false
+  "workerd": false

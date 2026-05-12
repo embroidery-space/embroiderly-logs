@@ -1,0 +1,25 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "vitest",
+    "check-types": "wrangler types && tsc --noEmit",
+    "fmt": "oxfmt --check",
+    "fmt:fix": "oxfmt --write",
+    "lint": "oxlint --format stylish --deny-warnings",
+    "lint:fix": "oxlint --fix --format stylish --deny-warnings"
+  },
+  "dependencies": {
+    "grammy": "1.42.0"
+  },
+  "devDependencies": {
+    "@tsconfig/node24": "24.0.4",
+    "@tsconfig/strictest": "2.0.8",
+    "@types/node": "24.12.3",
+    "oxfmt": "0.48.0",
+    "oxlint": "1.63.0",
+    "typescript": "6.0.3",
+    "wrangler": "4.90.0"
+  }
+}
