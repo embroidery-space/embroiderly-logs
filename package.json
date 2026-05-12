@@ -11,7 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "grammy": "1.42.0"
+    "grammy": "1.42.0",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "0.16.3",

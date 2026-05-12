@@ -6,7 +6,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import worker from "./main";
 
-const COMMIT_URL = "https://github.com/embroidery-space/embroiderly/commit/abc123";
+const COMMIT_URL = "https://github.com/embroidery-space/embroiderly/commit/abc123def456";
+const COMMIT_HASH = "abc123def456";
+const BRANCH = "main";
+const COMMIT_MESSAGE = "fix button alignment";
+const VALID_GIT_INFO = { url: COMMIT_URL, hash: COMMIT_HASH, branch: BRANCH, message: COMMIT_MESSAGE };
+
 const PREVIEW_URL = "https://abc123-embroiderly.nazarantoniuk18.workers.dev";
 const ALIAS_URL = "https://main-embroiderly.nazarantoniuk18.workers.dev";
 
@@ -61,13 +66,13 @@ describe("authentication", () => {
   });
 
   it("rejects a wrong secret", async () => {
-    const res = await post({ commitUrl: COMMIT_URL, previewUrl: PREVIEW_URL }, "wrong-secret");
+    const res = await post({ gitInfo: VALID_GIT_INFO, previewUrl: PREVIEW_URL }, "wrong-secret");
     expect(res.status).toBe(401);
     expect(mockSendMessage).not.toHaveBeenCalled();
   });
 
   it("authenticates with the correct secret", async () => {
-    const res = await post({ commitUrl: COMMIT_URL, previewUrl: PREVIEW_URL });
+    const res = await post({ gitInfo: VALID_GIT_INFO, previewUrl: PREVIEW_URL });
     expect(res.status).toBe(204);
     expect(mockSendMessage).toHaveBeenCalled();
   });
@@ -89,46 +94,48 @@ describe("payload validation", () => {
     expect(res.status).toBe(400);
   });
 
-  it("rejects a missing commitUrl", async () => {
+  it("rejects a missing gitInfo", async () => {
     const res = await post({ previewUrl: PREVIEW_URL });
     expect(res.status).toBe(400);
   });
 
-  it("rejects a missing previewUrl", async () => {
-    const res = await post({ commitUrl: COMMIT_URL });
+  it("rejects a non-https gitInfo.url", async () => {
+    const res = await post({ gitInfo: { ...VALID_GIT_INFO, url: "http://example.com" }, previewUrl: PREVIEW_URL });
     expect(res.status).toBe(400);
   });
 
-  it("rejects a non-https commitUrl", async () => {
-    const res = await post({ commitUrl: "http://example.com", previewUrl: PREVIEW_URL });
+  it("rejects a missing previewUrl", async () => {
+    const res = await post({ gitInfo: VALID_GIT_INFO });
     expect(res.status).toBe(400);
   });
 
   it("rejects a non-https previewUrl", async () => {
-    const res = await post({ commitUrl: COMMIT_URL, previewUrl: "http://example.com" });
+    const res = await post({ gitInfo: VALID_GIT_INFO, previewUrl: "http://example.com" });
     expect(res.status).toBe(400);
   });
 
   it("rejects a non-https aliasUrl", async () => {
-    const res = await post({ commitUrl: COMMIT_URL, previewUrl: PREVIEW_URL, aliasUrl: "http://example.com" });
+    const res = await post({ gitInfo: VALID_GIT_INFO, previewUrl: PREVIEW_URL, aliasUrl: "http://example.com" });
     expect(res.status).toBe(400);
   });
 });
 
 describe("publishing", () => {
-  it("sucessfully sends a message without the Branch Preview URL", async () => {
-    const res = await post({ commitUrl: COMMIT_URL, previewUrl: PREVIEW_URL });
+  it("successfully sends a message without the Branch Preview URL", async () => {
+    const res = await post({ gitInfo: VALID_GIT_INFO, previewUrl: PREVIEW_URL });
     expect(res.status).toBe(204);
     expect(mockSendMessage).toHaveBeenCalledOnce();
 
     const text = mockSendMessage.mock.calls[0]![1] as string;
     expect(text).toContain(COMMIT_URL);
     expect(text).toContain(PREVIEW_URL);
+    expect(text).toContain(`${COMMIT_HASH.slice(0, 7)}@${BRANCH}`);
+    expect(text).toContain(COMMIT_MESSAGE);
     expect(text).not.toContain("Branch Preview URL");
   });
 
   it("includes the Branch Preview URL when aliasUrl is provided", async () => {
-    const res = await post({ commitUrl: COMMIT_URL, previewUrl: PREVIEW_URL, aliasUrl: ALIAS_URL });
+    const res = await post({ gitInfo: VALID_GIT_INFO, previewUrl: PREVIEW_URL, aliasUrl: ALIAS_URL });
     expect(res.status).toBe(204);
 
     const text = mockSendMessage.mock.calls[0]![1] as string;
@@ -139,7 +146,7 @@ describe("publishing", () => {
   it("handles Telegram errors", async () => {
     mockSendMessage.mockRejectedValueOnce(new Error("network timeout"));
 
-    const res = await post({ commitUrl: COMMIT_URL, previewUrl: PREVIEW_URL });
+    const res = await post({ gitInfo: VALID_GIT_INFO, previewUrl: PREVIEW_URL });
     expect(res.status).toBe(502);
     expect(await res.text()).toBe("Upstream error");
   });
