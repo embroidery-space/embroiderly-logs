@@ -15,15 +15,15 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "0.16.8",
+    "@cloudflare/vitest-pool-workers": "0.16.13",
     "@tsconfig/node24": "24.0.4",
     "@tsconfig/strictest": "2.0.8",
-    "@types/node": "24.12.4",
-    "oxfmt": "0.51.0",
-    "oxlint": "1.66.0",
+    "@types/node": "24.13.0",
+    "oxfmt": "0.53.0",
+    "oxlint": "1.68.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.7",
-    "wrangler": "4.93.1"
+    "vitest": "4.1.8",
+    "wrangler": "4.98.0"
   },
   "engines": {
     "node": ">=24"
