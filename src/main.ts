@@ -65,6 +65,22 @@ function verifySecret(provided: string, expected: string) {
   return lengthsMatch ? crypto.subtle.timingSafeEqual(a, b) : !crypto.subtle.timingSafeEqual(a, a);
 }
 
+function getPrUrl(gitUrl: string, prNumber: string): string | null {
+  try {
+    const url = new URL(gitUrl);
+    if (url.hostname === "github.com" || url.hostname === "www.github.com") {
+      const parts = url.pathname.split("/").filter(Boolean);
+      if (parts.length >= 2) {
+        const [owner, repo] = parts;
+        return `https://github.com/${owner}/${repo}/pull/${prNumber}`;
+      }
+    }
+  } catch {
+    // Ignore invalid URL
+  }
+  return null;
+}
+
 function renderMessage(payload: Payload): string {
   const { gitInfo, previewUrl, aliasUrl } = payload;
 
@@ -77,7 +93,12 @@ function renderMessage(payload: Payload): string {
   }
 
   const ref = `${gitInfo.hash.slice(0, 7)}@${gitInfo.branch}`;
-  lines.push("", `<a href="${gitInfo.url}">${ref}</a> — ${gitInfo.message}`);
+  const message = gitInfo.message.replace(/\(#(\d+)\)\s*$/u, (match, prNumber) => {
+    const prUrl = getPrUrl(gitInfo.url, prNumber);
+    return prUrl ? `(<a href="${prUrl}">#${prNumber}</a>)` : match;
+  });
+
+  lines.push("", `<a href="${gitInfo.url}">${ref}</a> — ${message}`);
 
   return lines.join("\n");
 }
