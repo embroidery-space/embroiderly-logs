@@ -151,3 +151,54 @@ describe("publishing", () => {
     expect(await res.text()).toBe("Upstream error");
   });
 });
+
+describe("PR linkage", () => {
+  it("successfully links a PR number in parentheses at the end of the commit message", async () => {
+    const gitInfo = { ...VALID_GIT_INFO, message: "update dependencies (#10)" };
+
+    const res = await post({ gitInfo, previewUrl: PREVIEW_URL });
+    expect(res.status).toBe(204);
+
+    const text = mockSendMessage.mock.calls[0]![1] as string;
+    expect(text).toContain(
+      'update dependencies (<a href="https://github.com/embroidery-space/embroiderly/pull/10">#10</a>)',
+    );
+  });
+
+  it("does not link a PR number if it is not in parentheses", async () => {
+    const gitInfo = { ...VALID_GIT_INFO, message: "update dependencies #10" };
+
+    const res = await post({ gitInfo, previewUrl: PREVIEW_URL });
+    expect(res.status).toBe(204);
+
+    const text = mockSendMessage.mock.calls[0]![1] as string;
+    expect(text).toContain("update dependencies #10");
+  });
+
+  it.for(["fixes #10 in the middle of message", "update dependencies (#10) with suffix"])(
+    "does not link a PR number if it is not at the end of the commit message",
+    async (message) => {
+      const gitInfo = { ...VALID_GIT_INFO, message };
+
+      const res = await post({ gitInfo, previewUrl: PREVIEW_URL });
+      expect(res.status).toBe(204);
+
+      const text = mockSendMessage.mock.calls[0]![1] as string;
+      expect(text).toContain(message);
+    },
+  );
+
+  it("does not link the PR number if the git URL is not a GitHub URL", async () => {
+    const gitInfo = {
+      ...VALID_GIT_INFO,
+      url: "https://gitlab.com/embroidery-space/embroiderly/commit/abc123def456",
+      message: "update dependencies (#10)",
+    };
+
+    const res = await post({ gitInfo, previewUrl: PREVIEW_URL });
+    expect(res.status).toBe(204);
+
+    const text = mockSendMessage.mock.calls[0]![1] as string;
+    expect(text).toContain("update dependencies (#10)");
+  });
+});
