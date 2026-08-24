@@ -11,19 +11,19 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "grammy": "1.45.0",
+    "grammy": "1.45.1",
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "0.18.5",
-    "@tsconfig/node24": "24.0.4",
+    "@cloudflare/vitest-pool-workers": "0.22.0",
+    "@tsconfig/node24": "24.0.5",
     "@tsconfig/strictest": "2.0.8",
-    "@types/node": "24.12.4",
-    "oxfmt": "0.59.0",
-    "oxlint": "1.74.0",
+    "@types/node": "24.13.3",
+    "oxfmt": "0.64.0",
+    "oxlint": "1.79.0",
     "typescript": "6.0.3",
-    "vitest": "4.1.10",
-    "wrangler": "4.111.0"
+    "vitest": "4.1.11",
+    "wrangler": "4.125.0"
   },
   "engines": {
     "node": ">=24"
